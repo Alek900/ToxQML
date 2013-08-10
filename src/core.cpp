@@ -36,29 +36,6 @@ Core::Core(QObject *parent) :
     eventtimer = new QTimer(this);
 }
 
-QString Core::toQString(uint8_t *data, uint16_t length)
-{
-    qDebug() << "Reciving: " << QByteArray(reinterpret_cast<char*>(data),length).toHex();
-    QString string = QString::fromUtf8((char*)data,length - 1);
-    return string;
-}
-
-Core::cString Core::fromQString(const QString &string)
-{
-    //IMPORTANT: CLEAN THIS -------------------------------------------------------------------
-    cString ret;
-    QByteArray data(string.toUtf8());
-    ret.size = data.size() + 1;
-    ret.data = new uint8_t[ret.size];
-    memcpy(ret.data, reinterpret_cast<uint8_t*>(data.data()), data.size());
-    ret.data[ret.size - 1] = 0;
-    data.clear();
-    qDebug() << "Sending: " << QByteArray(reinterpret_cast<char*>(ret.data),ret.size).toHex();
-    //----------------------------------------------------------------------------------------
-
-    return ret;
-}
-
 QString Core::userId()
 {
     return QByteArray(reinterpret_cast<char*>(self_public_key),CLIENT_ID_SIZE).toHex();
@@ -68,22 +45,45 @@ QString Core::username()
 {
     uint8_t *name = new uint8_t[MAX_NAME_LENGTH];
     int size = getself_name(name);
+
     QString ret = toQString(name, size);
+
     delete name;
     return ret;
 }
 
-void Core::m_friendmessage(int friendnumber, uint8_t *message, uint16_t length)
+QString Core::toQString(uint8_t *data, uint16_t length)
 {
-    QString qmessage = toQString(message, length);
-    emit _this->onfriendMessaged(friendnumber, qmessage);
+    QString string = QString::fromUtf8((char*)data,length - 1);
+    return string;
+}
+
+Core::cString Core::fromQString(const QString &string)
+{
+    QByteArray data(string.toUtf8());
+
+    cString ret;
+    ret.size = data.size() + 1;
+    ret.data = new uint8_t[ret.size];
+
+    memcpy(ret.data, reinterpret_cast<uint8_t*>(data.data()), data.size());
+    data.clear();
+
+    return ret;
 }
 
 void Core::m_friendrequest(uint8_t *public_key, uint8_t *data, uint16_t length)
 {
     QString message = toQString(data, length);
     QString key = QByteArray(reinterpret_cast<char*>(public_key), CLIENT_ID_SIZE).toHex();
+
     emit _this->onfriendRequested(key, message);
+}
+
+void Core::m_friendmessage(int friendnumber, uint8_t *message, uint16_t length)
+{
+    QString qmessage = toQString(message, length);
+    emit _this->onfriendMessaged(friendnumber, qmessage);
 }
 
 void Core::m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t length)
@@ -93,9 +93,34 @@ void Core::m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t lengt
     emit _this->onfriendNameChanged(friendnumber, qname);
 }
 
-void Core::m_friendstatuschange(int friendnumber, USERSTATUS_KIND kind, uint8_t *newstatus, uint16_t length)
+void Core::m_friendstatuschange(int friendnumber, USERSTATUS kind)
 {
-    QString statusnote = toQString(newstatus, length);
+
+}
+
+void Core::m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length)
+{
+
+}
+
+void Core::m_checkdhtconnection()
+{
+    if (DHT_isconnected() && !m_connected)
+    {
+        m_connected = true;
+        emit connectedChanged();
+    }
+    else if (!DHT_isconnected() && m_connected)
+    {
+        emit connectedChanged();
+    }
+    delete tmp.data;
+}
+
+void Core::m_processevents()
+{
+    doMessenger();
+    m_checkdhtconnection();
 }
 
 void Core::start()
@@ -135,6 +160,20 @@ void Core::stop()
     config.close();*/
 }
 
+void Core::setuserUsername(const QString &name)
+{
+    cString tmp = fromQString(name);
+    setname(tmp.data, tmp.size);
+    delete tmp.data;
+}
+
+void Core::setuserStatusnote(const QString &note)
+{
+    cString tmp = fromQString(note);
+    qDebug() << QByteArray((char*)tmp.data, tmp.size).toHex();
+    m_set_statusmessage(tmp.data,tmp.size);
+}
+
 void Core::acceptFriendRequest(const QString &key)
 {
 
@@ -169,18 +208,7 @@ void Core::sendFriendRequest(const QString &key, const QString &message)
 
 void Core::sendFriendMessge(int friendnumber, const QString &message)
 {
-    //IMPORTANT: CLEAN THIS ---------------------------------------------------
-    cString ret;
-    QByteArray data(message.toUtf8());
-    ret.size = data.size() + 5;
-    ret.data = new uint8_t[data.size() + 5];
-    memcpy(ret.data + 4, reinterpret_cast<uint8_t*>(data.data()), data.size());
-    int *tmp = new int;
-    *tmp = 1;
-    memcpy(ret.data, tmp,4);
-    data.clear();
-    //------------------------------------------------------------------------
-
+    cString ret = fromQString(message);
     m_sendmessage(friendnumber, ret.data, ret.size);
     delete ret.data;
 }
@@ -210,39 +238,4 @@ void Core::loadSettings(QByteArray settings)
         emit onfriendAdded(id, key);
         id++;
     }
-}
-
-void Core::setuserUsername(const QString &name)
-{
-    cString tmp = fromQString(name);
-    setname(tmp.data, tmp.size);
-    delete tmp.data;
-}
-
-void Core::setuserStatusnote(const QString &note)
-{
-    cString tmp = fromQString(note);
-    qDebug() << QByteArray((char*)tmp.data, tmp.size).toHex();
-    m_set_userstatus(USERSTATUS_KIND_ONLINE, tmp.data,tmp.size);
-    delete tmp.data;
-}
-
-void Core::m_checkdhtconnection()
-{
-    if (DHT_isconnected() && !m_connected)
-    {
-        m_connected = true;
-        emit connectedChanged();
-    }
-    else if (!DHT_isconnected() && m_connected)
-    {
-        emit connectedChanged();
-    }
-}
-
-
-void Core::m_processevents()
-{
-    doMessenger();
-    m_checkdhtconnection();
 }
