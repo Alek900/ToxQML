@@ -54,7 +54,7 @@ QString Core::username()
 
 QString Core::toQString(uint8_t *data, uint16_t length)
 {
-    QString string = QString::fromUtf8((char*)data,length - 1);
+    QString string = QString::fromUtf8((char*)data,length);
     return string;
 }
 
@@ -67,6 +67,7 @@ Core::cString Core::fromQString(const QString &string)
     ret.data = new uint8_t[ret.size];
 
     memcpy(ret.data, reinterpret_cast<uint8_t*>(data.data()), data.size());
+    ret.data[ret.size - 1] = 0;
     data.clear();
 
     return ret;
@@ -114,7 +115,6 @@ void Core::m_checkdhtconnection()
     {
         emit connectedChanged();
     }
-    delete tmp.data;
 }
 
 void Core::m_processevents()
@@ -230,8 +230,8 @@ void Core::loadSettings(QByteArray settings)
 
     uint8_t *idptr = new uint8_t[CLIENT_ID_SIZE];
     int id = 0;
-    int i = 0;
     QString key;
+
     while (getclient_id(id, idptr) != -1)
     {
         key = QByteArray(reinterpret_cast<char*>(idptr), CLIENT_ID_SIZE).toHex();

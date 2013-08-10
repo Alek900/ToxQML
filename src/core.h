@@ -28,6 +28,7 @@ class Core : public QObject
 {
     Q_OBJECT
 
+    //Shouldn't really use Q_PROPERTY on the core, not very usfull really
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(QString userId READ userId)
     Q_PROPERTY(QString username READ username)
@@ -37,14 +38,13 @@ public:
     QString userId();
     QString username();
     bool connected(){return m_connected;}
+
 private:
 
     struct cString{
         uint8_t *data;
         uint16_t size;
     };
-
-    const static uint8_t MAX_UT8_SIZE = 4; //http://tools.ietf.org/html/rfc3629#page-4
 
     QTimer *eventtimer;
     bool m_connected;

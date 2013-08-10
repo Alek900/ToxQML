@@ -136,26 +136,23 @@ ApplicationWindow {
         anchors.fill: parent
         ColumnLayout
         {
-
+            clip: true
             Row{
                 Layout.fillWidth: true
                 spacing: 10
                 height: 60
                 Image{
-                    Layout.fillHeight: true
+                    height: 64
                     width:height
-                    source: "http://placehold.it/64x64"
+
                 }
                 ColumnLayout{
                     Layout.fillHeight: true
                     Text{
-                        Layout.minimumHeight: 20;
-                        Layout.maximumWidth: 40
                         id: name
                         text: nameedit.text == "" ? "username" : nameedit.text
                         MouseArea{
                             anchors.fill: parent
-
                             onDoubleClicked: {
                                 name.visible = false
                                 nameedit.visible = true
@@ -188,6 +185,7 @@ ApplicationWindow {
                             }
                         }
                     }
+
                     TextField{
                         id:noteedit
                         visible: false
@@ -242,6 +240,7 @@ ApplicationWindow {
                 }
             }
             RowLayout{
+                Layout.minimumWidth: 0
                 Button{
                     id: friendsbutton
                     text:"Friends"
