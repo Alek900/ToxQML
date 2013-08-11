@@ -61,7 +61,9 @@ HEADERS  += \
     src/statuswrapper.h
 
 OTHER_FILES += \
-    resources/qml/main.qml
+    resources/qml/main.qml \
+    resources/qml/newui.qml
 
 RESOURCES += \
-    resources/qml.qrc
+    resources/qml.qrc \
+    resources/icons.qrc

@@ -36,7 +36,7 @@ void Friend::setuserId(const QString &public_key)
     emit userIdChanged();
 }
 
-void Friend::setstatus(Status status)
+void Friend::setstatus(StatusWrapper::Status status)
 {
     m_status = status;
     emit statusChanged();

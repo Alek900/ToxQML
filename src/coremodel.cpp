@@ -27,11 +27,13 @@ CoreModel::CoreModel(Core *core, QObject *parent) :
 {
     m_core = core;
     m_user = new Friend(-1);
-
+    m_user->setusername("Hello");
+    m_user->setstatus(StatusWrapper::Online);
     connect(m_core, &Core::onfriendAdded, this, &CoreModel::onfriendAdded);
     connect(m_core, &Core::onfriendRequested, this, &CoreModel::onfriendRequest);
     connect(m_core, &Core::onfriendMessaged, this, &CoreModel::onfriendMessage);
     connect(m_core, &Core::onfriendNameChanged, this, &CoreModel::onfriendNameChanged);
+    connect(m_core, &Core::onfriendStatusChanged, this, &CoreModel::onfriendStatusChanged);
     connect(m_core, &Core::onfriendStatusTextChanged, this, &CoreModel::onfriendStatusNoteChanged);
 
     connect(m_core, &Core::onStarted, this, &CoreModel::coreStarted);
@@ -42,7 +44,7 @@ void CoreModel::onfriendAdded(int friendnumber, const QString &key)
     Friend *newfriend = new Friend(friendnumber);
     newfriend->setuserId(key);
     newfriend->setusername("???");
-    newfriend->setstatus(Friend::Status::Offline);
+    newfriend->setstatus(StatusWrapper::Status::Offline);
     m_friendlist.append(newfriend);
     m_friendmap[friendnumber] = newfriend;
     connect(newfriend, &Friend::m_sendmessage, this, &CoreModel::sendFriendMessage);
@@ -71,6 +73,11 @@ void CoreModel::onfriendNameChanged(int friendnumber, const QString& name)
     m_friendmap[friendnumber]->setusername(name);
 }
 
+void CoreModel::onfriendStatusChanged(int friendnumber, USERSTATUS status)
+{
+    m_friendmap[friendnumber]->setstatus((StatusWrapper::Status) status);
+}
+
 void CoreModel::onfriendStatusNoteChanged(int friendnumber, const QString& note)
 {
     m_friendmap[friendnumber]->setstatusNote(note);
@@ -96,11 +103,13 @@ void CoreModel::sendFriendMessage(int id, const QString &message)
 void CoreModel::setuserUsername(const QString &name)
 {
     m_core->setuserUsername(name);
+    m_user->setusername(name);
 }
 
 void CoreModel::setuserStatusnote(const QString &note)
 {
     m_core->setuserStatusnote(note);
+    m_user->setstatusNote(note);
 }
 
 void CoreModel::coreStarted()

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/user-available.png</file>
+        <file>icons/user-away.png</file>
+        <file>icons/user-busy.png</file>
+        <file>icons/user-offline.png</file>
+        <file>icons/avatar-default.png</file>
+        <file>icons/dialog-question.png</file>
+        <file>icons/user-invisible.png</file>
+        <file>icons/contact-new.png</file>
+    </qresource>
+</RCC>

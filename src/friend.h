@@ -27,17 +27,16 @@ class Friend : public QObject
 
     Q_OBJECT
     Q_PROPERTY(QString username READ username NOTIFY usernameChanged)
-    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(StatusWrapper::Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString statusNote READ statusNote NOTIFY statusNoteChanged)
     Q_PROPERTY(QString userId READ userId NOTIFY userIdChanged)
     Q_PROPERTY(QString chatlog READ chatlog WRITE setchatlog NOTIFY chatlogChanged)
 
 public:
-    typedef StatusWrapper::Status Status;
     Friend(int id, QObject *parent = 0);
 
     QString username(){return m_username;}
-    Status status(){return m_status;}
+    StatusWrapper::Status status(){return m_status;}
     QString statusNote(){return m_statusnote;}
     QString userId(){return m_userid;}
     QString chatlog(){return m_chatlog;}
@@ -46,7 +45,7 @@ public:
     void setuserId(const QString& public_key);
 private:
     QString m_username;
-    Status m_status;
+    StatusWrapper::Status m_status;
     QString m_statusnote;
     QString m_userid;
     QString m_chatlog;
@@ -64,7 +63,7 @@ signals:
     void m_sendmessage(int id, const QString &message);
 
 public slots:
-    void setstatus(Status status);
+    void setstatus(StatusWrapper::Status status);
     void setstatusNote(const QString& note);
     void setchatlog(const QString& data);
     void m_recivedMessage(const QString& message);

@@ -71,6 +71,7 @@ signals:
     void onfriendRequested(const QString& public_key, const QString& message);
     void onfriendMessaged(int friendnumber, const QString& message);
     void onfriendNameChanged(int friendnumber, const QString& name);
+    void onfriendStatusChanged(int friendnumber, USERSTATUS status);
     void onfriendStatusTextChanged(int friendnumber, const QString& note);
 
 private slots:

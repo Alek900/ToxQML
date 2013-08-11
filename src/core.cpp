@@ -96,12 +96,13 @@ void Core::m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t lengt
 
 void Core::m_friendstatuschange(int friendnumber, USERSTATUS kind)
 {
-
+    emit _this->onfriendStatusChanged(friendnumber, kind);
 }
 
 void Core::m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length)
 {
-
+    QString message = toQString(status, length);
+    emit _this->onfriendStatusTextChanged(friendnumber, message);
 }
 
 void Core::m_checkdhtconnection()
@@ -140,6 +141,7 @@ void Core::start()
     m_callback_friendmessage(&Core::m_friendmessage);
     m_callback_namechange(&Core::m_friendnamechange);
     m_callback_userstatus(&Core::m_friendstatuschange);
+    m_callback_statusmessage(&Core::m_friendstatusnotechange);
 
     connect(eventtimer, &QTimer::timeout, this, &Core::m_processevents);
     eventtimer->start(30);
@@ -199,9 +201,10 @@ void Core::sendFriendRequest(const QString &key, const QString &message)
 
     memcpy(ckey, reinterpret_cast<uint8_t*>(akey.data()), akey.size());
     cString tmp = fromQString(message);
-    int newfriendid = m_addfriend(ckey, tmp.data, tmp.size);
 
+    int newfriendid = m_addfriend(ckey, tmp.data, tmp.size);
     emit onfriendAdded(newfriendid, key);
+
     delete tmp.data;
 
 }
