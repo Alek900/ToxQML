@@ -89,6 +89,8 @@ public slots:
 
     void sendFriendMessge(int friendnumber, const QString& message);
 
+    void deleteFriend(int friendnumber);
+
     QByteArray saveSettings();
     void loadSettings(QByteArray settings);
 };

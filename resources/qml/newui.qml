@@ -21,98 +21,17 @@ ApplicationWindow {
         }
     }
 
-    Window{
+    RequestFriendWindow {
         id: newfriendrequestwindow
-        width: 400
-        height: 200
-        modality: Qt.WindowModal
-
-        ColumnLayout{
-            anchors.fill: parent
-            anchors.margins: 8
-            spacing: 8
-            TextField{
-                id: newfriendid
-                Layout.fillWidth: true
-                placeholderText: "Friend id"
-            }
-            Label{
-                text: "Message you want to send with the request"
-            }
-
-            TextArea{
-                id: newfriendmessage
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-            }
-            RowLayout{
-                Button{
-                    text: "Cancel"
-
-                    onClicked: {
-                        newfriendrequestwindow.visible = false
-                    }
-                }
-                Item{
-                    Layout.fillWidth: true
-                    height: 20
-
-                }
-                Button{
-                    text: "Send request"
-                    onClicked: {
-                        CoreModel.sendFriendrequest(newfriendid.text, newfriendmessage.text)
-                        newfriendrequestwindow.visible = false
-                        newfriendid.text = ""
-                        newfriendmessage = ""
-                    }
-                }
-            }
+        onClickedSend: {
+            CoreModel.sendFriendrequest(key, message)
         }
-
     }
 
-    Window{
-        property var request
+    FriendRequesetWindow {
         id: friendrequesetrecivedwindow
-        ColumnLayout{
-            Label{
-                text: "You haved recived a friend request from a user with this id"
-            }
-            TextField{
-                id: friendrequestid
-                text: request ? "" : request.key
-                readOnly: true
-            }
-            Label{
-                text: "Here is the accompanying message"
-            }
-            TextArea{
-                id: friendrequestmessage
-                text: request ? "" :request.message
-                readOnly: true
-            }
-            RowLayout{
-                Button{
-                    text: "Deny"
-
-                    onClicked:{
-                        friendrequesetrecivedwindow.visible = false
-                    }
-                }
-                Item{
-                    Layout.fillWidth: true
-                    height: 20
-                }
-                Button{
-                    text: "Accept"
-
-                    onClicked: {
-                        friendrequesetrecivedwindow.visible = false
-                        CoreModel.acceptFriendRequest(request)
-                    }
-                }
-            }
+        onAcceptClicked: {
+            CoreModel.acceptFriendRequest(request)
         }
     }
 
@@ -262,6 +181,18 @@ ApplicationWindow {
             }
         }
 
+        Menu{
+            id: friendmenu
+
+            MenuItem{
+                text: "Delete"
+                onTriggered: {
+                    root.currentfriend.deleteMe();
+                }
+            }
+
+        }
+
         rowDelegate: Rectangle {
             height: 60
             color: styleData.selected ? palette.highlight : palette.base
@@ -303,16 +234,21 @@ ApplicationWindow {
                 smooth: true
                 fillMode: Image.PreserveAspectFit
             }
-            MouseArea{
-                anchors.fill: parent
-                onDoubleClicked: {
-                    friendslist.currentRow = styleData.row
-                }
-            }
         }
 
         onCurrentRowChanged: {
             currentfriend = model[currentRow]
+        }
+
+        MouseArea{
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onClicked: {
+                if (parent.currentRow >= 0)
+                {
+                    friendmenu.__popup(mouseX + parent.x, mouseY + parent.y, -1)
+                }
+            }
         }
 
         TableViewColumn {
@@ -363,106 +299,12 @@ ApplicationWindow {
         }
     }
 
-    Rectangle{
+    ChatArea{
+        friend: currentfriend
+        id: chatviews
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: friendslist.right
         anchors.bottom: parent.bottom
-
-        color: palette.base
-        clip: true
-
-        Rectangle{
-            id: chatviewport
-            anchors.margins: 6
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: textviewport.top
-            Flickable{
-                id: chatscroller
-                anchors.fill: parent
-                contentHeight: chatmessages.contentHeight + chatmessages.font.pixelSize + 6
-                boundsBehavior: Flickable.StopAtBounds
-
-                TextEdit{
-                    id: chatmessages
-                    anchors.fill: parent
-                    color: palette.text
-                    selectionColor: palette.highlightedText
-
-                    text: currentfriend.chatlog
-
-                    onTextChanged: {
-                        if (contentHeight > chatviewport.height)
-                        {
-                            chatscroller.contentY = contentHeight - chatviewport.height
-                        } else {
-                            chatscroller.contentY = 0
-                        }
-                    }
-
-                }
-
-            }
-
-        }
-        Rectangle{
-            id: textviewport
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: 4
-
-            antialiasing: true
-            radius: 3
-            border.width: 1
-            border.color: disabledpalette.dark
-
-            height: 50
-            clip: true
-            Flickable{
-                id: textscroller
-                anchors.fill: parent
-                anchors.margins: 6
-                contentHeight: chatinput.contentHeight + chatinput.font.pixelSize + 6
-                boundsBehavior: Flickable.StopAtBounds
-
-                TextEdit{
-                    id: chatinput
-                    anchors.fill: parent
-                    color: palette.text
-                    selectionColor: palette.highlightedText
-
-                    onCursorPositionChanged: {
-                        if (cursorRectangle.y >= textscroller.contentY + textviewport.height - 1.5*cursorRectangle.height - 6)
-                        {
-                            textscroller.contentY = cursorRectangle.y - textviewport.height + cursorRectangle.height*1.5
-                        } else if (cursorRectangle.y < textscroller.contentY) {
-                            textscroller.contentY = cursorRectangle.y
-                        }
-                    }
-
-                    Keys.onPressed: {
-                        if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return){
-                            if(!(event.modifiers & Qt.ShiftModifier))
-                            {
-                                currentfriend.sendMessage(text)
-                                text = ""
-                                event.accepted = true
-                            }
-                        }
-                    }
-
-                    Text{
-                        text: qsTr("Type your message here...")
-                        color: disabledpalette.text
-                        visible: !parent.focus && !parent.text.length
-                    }
-                }
-
-            }
-
-        }
     }
 }

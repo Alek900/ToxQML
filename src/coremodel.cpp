@@ -48,7 +48,18 @@ void CoreModel::onfriendAdded(int friendnumber, const QString &key)
     m_friendlist.append(newfriend);
     m_friendmap[friendnumber] = newfriend;
     connect(newfriend, &Friend::m_sendmessage, this, &CoreModel::sendFriendMessage);
+    connect(newfriend, &Friend::deleteFriend, this, &CoreModel::onfriendDelete);
 
+    emit friendsChanged();
+}
+
+void CoreModel::onfriendDelete(int friendnumber)
+{
+    Friend* tmp = m_friendmap[friendnumber];
+    m_friendlist.removeAll(tmp);
+    m_friendmap.remove(friendnumber);
+    delete tmp;
+    m_core->deleteFriend(friendnumber);
     emit friendsChanged();
 }
 

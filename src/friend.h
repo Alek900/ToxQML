@@ -61,6 +61,7 @@ signals:
     void chatlogChanged();
 
     void m_sendmessage(int id, const QString &message);
+    void deleteFriend(int id);
 
 public slots:
     void setstatus(StatusWrapper::Status status);
@@ -70,6 +71,7 @@ public slots:
 
     void sendMessage(const QString& message);
     void messageRecived(const QString &message);
+    void deleteMe();
 };
 
 Q_DECLARE_METATYPE(Friend*)

@@ -70,7 +70,8 @@ signals:
     void friendRequest(QObject *request);
 
 public slots:
-    void onfriendAdded(int friennumber, const QString& key);
+    void onfriendAdded(int friendnumber, const QString& key);
+    void onfriendDelete(int friendnumber);
     void onfriendRequest(const QString& key, const QString& message);
     void onfriendMessage(int friendnumber, const QString& message);
     void onfriendNameChanged(int friendnumber, const QString& name);

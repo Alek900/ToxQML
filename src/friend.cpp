@@ -75,3 +75,8 @@ void Friend::messageRecived(const QString &message)
     m_chatlog.append("\n");
     emit chatlogChanged();
 }
+
+void Friend::deleteMe()
+{
+    emit deleteFriend(m_id);
+}

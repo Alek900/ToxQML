@@ -30,7 +30,8 @@ win32 {
 SOURCES += main.cpp \
     src/core.cpp \
     src/friend.cpp \
-    src/coremodel.cpp
+    src/coremodel.cpp \
+    src/settings.cpp
 
 SOURCES += \
     submodule/ProjectTox-Core/core/util.c \
@@ -58,11 +59,15 @@ HEADERS  += \
     src/core.h \
     src/friend.h \
     src/coremodel.h \
-    src/statuswrapper.h
+    src/statuswrapper.h \
+    src/settings.h
 
 OTHER_FILES += \
     resources/qml/main.qml \
-    resources/qml/newui.qml
+    resources/qml/newui.qml \
+    resources/qml/RequestFriendWindow.qml \
+    resources/qml/FriendRequesetWindow.qml \
+    resources/qml/ChatArea.qml
 
 RESOURCES += \
     resources/qml.qrc \

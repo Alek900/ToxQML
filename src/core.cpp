@@ -206,7 +206,6 @@ void Core::sendFriendRequest(const QString &key, const QString &message)
     emit onfriendAdded(newfriendid, key);
 
     delete tmp.data;
-
 }
 
 void Core::sendFriendMessge(int friendnumber, const QString &message)
@@ -214,6 +213,11 @@ void Core::sendFriendMessge(int friendnumber, const QString &message)
     cString ret = fromQString(message);
     m_sendmessage(friendnumber, ret.data, ret.size);
     delete ret.data;
+}
+
+void Core::deleteFriend(int friendnumber)
+{
+    m_delfriend(friendnumber);
 }
 
 QByteArray Core::saveSettings()
