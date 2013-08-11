@@ -18,10 +18,12 @@
 */
 
 #include "core.h"
-//#include <QFile> //This should not be here
-//#include <QDir> //or this
-//#include <QStandardPaths> // or this
+#include <QFile> //This should not be here
+#include <QDir> //or this
+#include <QStandardPaths> // or this
 #include <QDebug> //this is ok
+
+//#define ENABLEPERSISTENT
 
 static Core *_this = 0;
 
@@ -94,7 +96,7 @@ void Core::m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t lengt
     emit _this->onfriendNameChanged(friendnumber, qname);
 }
 
-void Core::m_friendstatuschange(int friendnumber, USERSTATUS kind)
+void Core::m_frienduserstatuschange(int friendnumber, USERSTATUS kind)
 {
     emit _this->onfriendStatusChanged(friendnumber, kind);
 }
@@ -103,6 +105,16 @@ void Core::m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t 
 {
     QString message = toQString(status, length);
     emit _this->onfriendStatusTextChanged(friendnumber, message);
+}
+
+void Core::m_friendstatuschange(int friendnumber, uint8_t status)
+{
+    if (status == 4)
+    {
+        emit _this->onfriendStatusChanged(friendnumber, USERSTATUS_NONE);
+    } else {
+        emit _this->onfriendStatusChanged(friendnumber, USERSTATUS_INVALID);
+    }
 }
 
 void Core::m_checkdhtconnection()
@@ -127,22 +139,22 @@ void Core::m_processevents()
 void Core::start()
 {
     initMessenger();
-
-    /*QFile config(QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0].append("/data.cfg"));
+#ifdef ENABLEPERSISTENT
+    QFile config(QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0].append("/data.cfg"));
     if(config.exists())
     {
         config.open(QIODevice::ReadOnly);
         QByteArray cfg = config.readAll();
         loadSettings(cfg);
         config.close();
-    }*/
-
+    }
+#endif
     m_callback_friendrequest(&Core::m_friendrequest);
     m_callback_friendmessage(&Core::m_friendmessage);
     m_callback_namechange(&Core::m_friendnamechange);
-    m_callback_userstatus(&Core::m_friendstatuschange);
+    m_callback_userstatus(&Core::m_frienduserstatuschange);
     m_callback_statusmessage(&Core::m_friendstatusnotechange);
-
+    m_callback_friendstatus(&Core::m_friendstatuschange);
     connect(eventtimer, &QTimer::timeout, this, &Core::m_processevents);
     eventtimer->start(30);
 
@@ -151,7 +163,7 @@ void Core::start()
 
 void Core::stop()
 {
-    /*Experimenting
+#ifdef ENABLEPERSISTENT
     QDir dir = QDir(QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0]);
     if (!dir.exists())
         dir.mkpath(".");
@@ -159,7 +171,8 @@ void Core::stop()
     QByteArray cfg = saveSettings();
     config.open(QIODevice::WriteOnly | QIODevice::Truncate);
     config.write(cfg);
-    config.close();*/
+    config.close();
+#endif
 }
 
 void Core::setuserUsername(const QString &name)

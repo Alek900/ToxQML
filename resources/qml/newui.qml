@@ -35,6 +35,30 @@ ApplicationWindow {
         }
     }
 
+    Window{
+        id: showouruserid
+        width: userid.__contentWidth
+        height: 50
+        minimumHeight: 50
+        maximumHeight: 50
+
+        visible: !focus
+
+        Item{
+            anchors.fill: parent
+            anchors.margins: 6
+            TextField{
+                id: userid
+                anchors.verticalCenter: parent.verticalCenter;
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: CoreModel.user.userId
+                readOnly: true
+            }
+        }
+
+    }
+
     Item {
         id: ouruser
 
@@ -50,6 +74,13 @@ ApplicationWindow {
             anchors.margins: 6
             fillMode: Image.PreserveAspectFit
             source: "qrc:/icons/avatar-default.png"
+            MouseArea{
+                anchors.fill: parent
+
+                onDoubleClicked: {
+                    showouruserid.visible = true
+                }
+            }
         }
 
         Label {
@@ -172,9 +203,6 @@ ApplicationWindow {
             }
             ListElement {
                 iconSource: "qrc:/icons/user-offline.png"
-            }
-            ListElement {
-                iconSource: "qrc:/icons/user-invisible.png"
             }
             ListElement {
                 iconSource: "qrc:/icons/dialog-question.png"

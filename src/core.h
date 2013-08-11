@@ -56,9 +56,9 @@ private:
     static void m_friendrequest(uint8_t *public_key, uint8_t  *data, uint16_t length);
     static void m_friendmessage(int friendnumber, uint8_t *message, uint16_t length);
     static void m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t length);
-    static void m_friendstatuschange(int friendnumber,USERSTATUS kind);
+    static void m_frienduserstatuschange(int friendnumber,USERSTATUS kind);
     static void m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length);
-
+    static void m_friendstatuschange(int friendnumber, uint8_t status);
     void m_checkdhtconnection();
 
 signals:
