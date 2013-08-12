@@ -173,8 +173,8 @@ void Core::start()
     m_callback_friendmessage(&Core::m_friendmessage);
     m_callback_namechange(&Core::m_friendnamechange);
     m_callback_userstatus(&Core::m_frienduserstatuschange);
+    m_callback_connectionstatus(&Core::m_friendstatuschange);
     m_callback_statusmessage(&Core::m_friendstatusnotechange);
-    m_callback_friendstatus(&Core::m_friendstatuschange);
     connect(eventtimer, &QTimer::timeout, this, &Core::m_processevents);
     eventtimer->start(30);
 

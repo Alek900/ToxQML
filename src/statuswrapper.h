@@ -27,7 +27,7 @@ class StatusWrapper : public QObject
     Q_OBJECT
     Q_ENUMS(Status)
 public:
-    enum Status {Unknow = 0, Online, Away, Busy, Offline, Invalid};
+    enum Status {Online, Away, Busy, Offline, Invalid};
 };
 
 Q_DECLARE_METATYPE(StatusWrapper::Status*)

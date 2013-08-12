@@ -75,11 +75,10 @@ HEADERS  += \
     src/settings.h
 
 OTHER_FILES += \
-    resources/qml/main.qml \
-    resources/qml/newui.qml \
     resources/qml/RequestFriendWindow.qml \
     resources/qml/FriendRequesetWindow.qml \
-    resources/qml/ChatArea.qml
+    resources/qml/ChatArea.qml \
+    resources/qml/main.qml
 
 RESOURCES += \
     resources/qml.qrc \
