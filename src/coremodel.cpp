@@ -19,6 +19,7 @@
 
 #include "coremodel.h"
 
+
 Request::Request(QObject *parent) : QObject(parent)
 {}
 
@@ -36,7 +37,15 @@ CoreModel::CoreModel(Core *core, QObject *parent) :
     connect(m_core, &Core::onfriendStatusChanged, this, &CoreModel::onfriendStatusChanged);
     connect(m_core, &Core::onfriendStatusTextChanged, this, &CoreModel::onfriendStatusNoteChanged);
 
+    connect(m_core, &Core::connectedChanged, this, &CoreModel::onConnectedChanged);
+
     connect(m_core, &Core::onStarted, this, &CoreModel::coreStarted);
+}
+
+void CoreModel::onConnectedChanged()
+{
+    m_connected = m_core->connected();
+    emit connectedChanged();
 }
 
 void CoreModel::onfriendAdded(int friendnumber, const QString &key)
@@ -115,12 +124,14 @@ void CoreModel::setuserUsername(const QString &name)
 {
     m_core->setuserUsername(name);
     m_user->setusername(name);
+    emit userChanged();
 }
 
 void CoreModel::setuserStatusnote(const QString &note)
 {
     m_core->setuserStatusnote(note);
     m_user->setstatusNote(note);
+    emit userChanged();
 }
 
 void CoreModel::coreStarted()

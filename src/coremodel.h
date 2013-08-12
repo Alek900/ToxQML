@@ -44,15 +44,17 @@ public:
 class CoreModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QObject* user READ user)
+    Q_PROPERTY(QObject* user READ user NOTIFY userChanged)
     Q_PROPERTY(QList<QObject*> friends READ friends NOTIFY friendsChanged)
     Q_PROPERTY(QList<QObject*> requests READ requests NOTIFY requestsChanged)
+    Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
 public:
     explicit CoreModel(Core* core, QObject *parent = 0);
 
     QObject* user(){return m_user;}
     QList<QObject*> friends(){return m_friendlist;}
     QList<QObject*> requests(){return m_friendrequests;}
+    bool connected(){return m_connected;}
 
     Q_INVOKABLE void sendFriendrequest(const QString& key, const QString& message);
     Q_INVOKABLE void sendFriendMessage(int id, const QString& message);
@@ -62,14 +64,20 @@ private:
     QHash<int, Friend*> m_friendmap; //used- for looking up based on core friendnumber
     QList<QObject*> m_friendlist; //the list qml cares about.
     QList<QObject*> m_friendrequests;
+    bool m_connected;
 
     Core *m_core;
 signals:
+    void userChanged();
     void friendsChanged();
     void requestsChanged();
+    void connectedChanged();
+
     void friendRequest(QObject *request);
 
 public slots:
+    void onConnectedChanged();
+
     void onfriendAdded(int friendnumber, const QString& key);
     void onfriendDelete(int friendnumber);
     void onfriendRequest(const QString& key, const QString& message);

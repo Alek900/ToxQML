@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     //qmlRegisterUncreatableType<StatusWrapper>("tox.friends", 1, 0, "Status", "Satus enums for friends");
     engine.rootContext()->setContextProperty("CoreModel", model);
-    engine.load(QUrl("qrc:/qml/newui.qml"));
+    engine.load(QUrl("qrc:/qml/main.qml"));
 
     int ret = a.exec();
     core->stop();

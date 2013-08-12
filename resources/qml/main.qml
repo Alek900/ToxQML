@@ -2,326 +2,346 @@ import QtQuick 2.0
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Window 2.0
-import tox.friends 1.0
 
 ApplicationWindow {
-    property var currentFriend : false
-    id:root
+    property var currentfriend
+
+    id: root
     visible: true
     width: 600
     height: 400
 
-    toolBar: ToolBar{
-        RowLayout{
+    Connections{
+        target: CoreModel
+
+        onFriendRequest: {
+            var req = request
+            friendrequesetrecivedwindow.request = req
+            friendrequesetrecivedwindow.visible = true
+        }
+    }
+
+    RequestFriendWindow {
+        id: newfriendrequestwindow
+        onClickedSend: {
+            CoreModel.sendFriendrequest(key, message)
+        }
+    }
+
+    FriendRequesetWindow {
+        id: friendrequesetrecivedwindow
+        onAcceptClicked: {
+            CoreModel.acceptFriendRequest(request)
+        }
+    }
+
+    Window{
+        id: showouruserid
+        width: userid.__contentWidth
+        height: 50
+        minimumHeight: 50
+        maximumHeight: 50
+
+        Item{
             anchors.fill: parent
+            anchors.margins: 6
             TextField{
-                Layout.preferredWidth: 520
+                id: userid
+                anchors.verticalCenter: parent.verticalCenter;
+                anchors.left: parent.left
+                anchors.right: parent.right
                 text: CoreModel.user.userId
                 readOnly: true
             }
         }
-    }
-    Connections {
-        target: CoreModel
 
-        onFriendRequest:{
-            var req = request
-            friendRequestDialog.request = request
-            friendRequestDialog.visible = true
-        }
     }
 
-    Window{
-        id: addfriendwindow
-        visible: false
-        modality: Qt.WindowModal
-        width: 300
-        height: 200
-        ColumnLayout{
-            anchors.fill: parent
-            TextField{
-                Layout.fillWidth: true
-                id: addfriendid
-                placeholderText: "user ID"
-            }
-            TextArea{
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                id: addfriendmessage
-                text: "Hello, this is "
-            }
-            RowLayout{
-                Layout.fillWidth: true
-                Button{
-                    text: "Cancel"
-                    onClicked: {
-                        addfriendmessage.text = "Hello, this is"
-                        addfriendwindow.visible = false
-                    }
-                }
-                Item{
-                    Layout.fillWidth: true
-                }
+    Item {
+        id: ouruser
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.right: friendslist.right
+        height: 60
 
-                Button{
-                    text: "Send request"
+        Image {
+            id: useravatar
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 6
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/icons/avatar-default.png"
+            MouseArea{
+                anchors.fill: parent
 
-                    onClicked: {
-                        CoreModel.sendFriendrequest(addfriendid.text, addfriendmessage.text);
-                       addfriendmessage.text = "Hello, this is"
-                        addfriendid.text = ""
-                        addfriendwindow.visible = false
-                    }
+                onDoubleClicked: {
+                    showouruserid.visible = true
                 }
             }
         }
-    }
 
-    Window{
-        property var request
+        Label {
+            id: usernametext
+            anchors.left: useravatar.right
+            anchors.bottom: useravatar.verticalCenter
+            text: CoreModel.user.username == "" ? "New user" : CoreModel.user.username
+            font.pointSize: 13
 
-        id: friendRequestDialog
-        title: "Friend request"
-
-        width: layoutColumn.implicitWidth + layoutColumn.anchors.margins*2
-        height : layoutColumn.implicitHeight+ layoutColumn.anchors.margins*2
-        modality: Qt.WindowModal
-        ColumnLayout{
-            id: layoutColumn
-            anchors.fill: parent
-            anchors.margins: 12
-            Label{
-                Layout.alignment: Qt.AlignHCenter
-                text: "User with the ID: "
-            }
-
-            TextField{
-                Layout.alignment: Qt.AlignHCenter
-                id: fieldId
-                text: friendRequestDialog.request.key
-            }
-
-            TextArea{
-                Layout.alignment: Qt.AlignHCenter
-                id: fieldMessage
-                text: friendRequestDialog.request.message
-            }
-            Label{
-                Layout.alignment: Qt.AlignHCenter
-                text: "Do you accept"
-            }
-            RowLayout
-            {
-                Layout.alignment: Qt.AlignHCenter
-                Button{
-                    text: "Yes"
-                    onClicked: {
-                        CoreModel.acceptFriendRequest(friendRequestDialog.request)
-                        friendRequestDialog.visible = false
-                    }
-                }
-                Button{
-                    text: "No"
-                    onClicked :{
-                        friendRequestDialog.visible = false
-                    }
-                }
-            }
-
-
-        }
-    }
-
-    SplitView {
-        anchors.fill: parent
-        ColumnLayout
-        {
-            clip: true
-            Row{
-                Layout.fillWidth: true
-                spacing: 10
-                height: 60
-                Image{
-                    height: 64
-                    width:height
-
-                }
-                ColumnLayout{
-                    Layout.fillHeight: true
-                    Text{
-                        id: name
-                        text: nameedit.text == "" ? "username" : nameedit.text
-                        MouseArea{
-                            anchors.fill: parent
-                            onDoubleClicked: {
-                                name.visible = false
-                                nameedit.visible = true
-
-                            }
-                        }
-                    }
-                    TextField{
-                        id:nameedit
-                        visible: false
-                        text: CoreModel.user.username
-                        onAccepted: {
-                            CoreModel.setuserUsername(text)
-                            nameedit.visible = false
-                            name.visible = true
-                        }
-                    }
-
-                    Text{
-                        id: note
-                        font.pointSize: name.font.pointSize - 2
-                        text: noteedit.text
-                        MouseArea{
-                            anchors.fill: parent
-
-                            onDoubleClicked: {
-                                note.visible = false
-                                noteedit.visible = true
-
-                            }
-                        }
-                    }
-
-                    TextField{
-                        id:noteedit
-                        visible: false
-                        text: "My long ass-status"
-                        onAccepted: {
-                            CoreModel.setuserStatusnote(text)
-                            noteedit.visible = false
-                            note.visible = true
-                        }
-                    }
-                }
-
-            }
-
-            TableView{
-                id: friendsview
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-
-                model: CoreModel.friends
-
-                TableViewColumn{
-                    title: "Status"
-                    role: "status"
-
-                }
-                TableViewColumn{
-                    title: "Name"
-                    role: "username"
-
-                }
-                TableViewColumn{
-                    title: "UserID"
-                    role: "userId"
-
-                }
-                onCurrentRowChanged: {
-                    currentFriend = CoreModel.friends[currentRow]
-                    console.log("Selction changed")
-                }
-            }
-            TableView{
-                id: requestview
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+            TextField {
+                id: editusername
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
                 visible: false
-                model: CoreModel.requests
-
-                TableViewColumn{
-                    title: "Requests"
-                    role: "key"
-                }
-            }
-            RowLayout{
-                Layout.minimumWidth: 0
-                Button{
-                    id: friendsbutton
-                    text:"Friends"
-                    visible: false
-                    onClicked: {
-                        friendsbutton.visible = false
-                        requestview.visible = false
-                        acceptrequest.visible = false
-
-                        requestbutton.visible = true
-                        friendsview.visible = true
-                        addfriend.visible = true
-                    }
-                }
-                Button{
-                    id: requestbutton
-                    text: "Requests"
-
-                    onClicked: {
-                        requestbutton.visible = false
-                        friendsview.visible = false
-                        addfriend.visible = false
-
-                        friendsbutton.visible = true
-                        requestview.visible = true
-                        acceptrequest.visible = true
-                    }
-                }
-                Button{
-                    id: addfriend
-                    text: "add friend"
-                    onClicked: {
-                        addfriendwindow.visible = true
-                    }
-                }
-
-                Button{
-                    id:acceptrequest
-                    text: "accept request"
-                    visible: false
-
-                    onClicked: {
-                        var request = requestview.model[requestview.currentRow]
-                        CoreModel.acceptFriendRequest(request)
-                    }
-                }
-
-            }
-        }
-
-        ColumnLayout {
-            RowLayout{
-                Label{
-                    text: currentFriend.username
-                    Layout.fillWidth: true
-                }
-                Item{
-                    Layout.fillWidth: true
-                }
-                Button{
-                    text: "open in new window"
-                    visible: currentFriend
-                }
-            }
-            TextArea{
-                id: chatlogarea
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                text: currentFriend.chatlog
-            }
-
-            TextField{
-                id: chatfield
-                Layout.fillWidth: true
-                placeholderText: "Send a message"
+                text: parent.text
                 onAccepted: {
-                    currentFriend.sendMessage(chatfield.text)
-                    chatfield.text = ""
+                    CoreModel.setuserUsername(text)
+                    visible = false
+                }
+
+                onFocusChanged: {
+                    if (focus == false) {
+                        visible = false
+                    }
+                }
+
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Escape) {
+                        focus = false
+                    }
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+
+                onDoubleClicked: {
+                    editusername.focus = true
+                    editusername.selectAll()
+                    editusername.visible = true
+                }
+            }
+        }
+
+        Label {
+            id: userstatusmessage
+            anchors.top: usernametext.bottom
+            anchors.left: usernametext.left
+            text: CoreModel.user.statusNote ? CoreModel.user.statusNote : "Online"
+            color: usernametext.color
+            font.pointSize: usernametext.font.pointSize - 2
+            TextField {
+                id: edituserstatusmessage
+                anchors.top: parent.top
+                anchors.left: parent.left
+                visible: false
+                text: userstatusmessage.text
+                onAccepted: {
+                    CoreModel.setuserStatusnote(text)
+
+                    visible = false
+                }
+
+                onFocusChanged: {
+                    if (focus == false) {
+                        visible = false
+                    }
+                }
+
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Escape) {
+                        focus = false
+                    }
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+
+                onDoubleClicked: {
+                    edituserstatusmessage.focus = true
+                    edituserstatusmessage.selectAll()
+                    edituserstatusmessage.visible = true
+                }
+            }
+        }
+
+        Image{
+            id:connectionstatusicon
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 6
+            fillMode: Image.PreserveAspectFit
+            source: CoreModel.connected ? "qrc:/icons/user-available.png" : "qrc:/icons/user-offline.png"
+        }
+
+    }
+
+    SystemPalette {
+        id: palette
+        colorGroup: SystemPalette.Active
+    }
+
+    SystemPalette {
+        id: disabledpalette
+        colorGroup: SystemPalette.Disabled
+    }
+
+    TableView {
+        id: friendslist
+
+        anchors.top: ouruser.bottom
+        anchors.bottom: friendstoolbar.top
+        anchors.left: parent.left
+
+        width: 230
+        headerVisible: false
+        model: CoreModel.friends
+
+        ListModel {
+            id: statusList
+            ListElement {
+                iconSource: "qrc:/icons/user-available.png"
+            }
+            ListElement {
+                iconSource: "qrc:/icons/user-away.png"
+            }
+            ListElement {
+                iconSource: "qrc:/icons/user-busy.png"
+            }
+            ListElement {
+                iconSource: "qrc:/icons/user-offline.png"
+            }
+            ListElement {
+                iconSource: "qrc:/icons/dialog-question.png"
+            }
+        }
+
+        Menu{
+            id: friendmenu
+
+            MenuItem{
+                text: "Delete"
+                onTriggered: {
+                    root.currentfriend.deleteMe();
                 }
             }
 
         }
+
+        rowDelegate: Rectangle {
+            height: 60
+            color: styleData.selected ? palette.highlight : palette.base
+        }
+
+        itemDelegate: Item {
+            Image {
+                id: friendavatar
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: 6
+                fillMode: Image.PreserveAspectFit
+                source: "qrc:/icons/avatar-default.png"
+            }
+            Text {
+                id: username
+                anchors.left: friendavatar.right
+                anchors.bottom: friendavatar.verticalCenter
+                color: styleData.selected ? palette.highlightedText : palette.windowText
+                text: friendslist.model[styleData.row].username
+                font.pointSize: 13
+            }
+            Text {
+                id: status
+                anchors.top: username.bottom
+                anchors.left: username.left
+                text: CoreModel.friends[styleData.row].statusNote
+                color: username.color
+                font.pointSize: username.font.pointSize - 2
+            }
+            Image {
+                anchors.margins: 6
+                antialiasing: true
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                source: statusList.get(friendslist.model[styleData.row].status).iconSource
+                width: 24
+                smooth: true
+                fillMode: Image.PreserveAspectFit
+            }
+        }
+
+        onCurrentRowChanged: {
+            currentfriend = model[currentRow]
+        }
+
+        MouseArea{
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            onClicked: {
+                if (parent.currentRow >= 0)
+                {
+                    friendmenu.__popup(mouseX + parent.x, mouseY + parent.y, -1)
+                }
+            }
+        }
+
+        TableViewColumn {
+        }
+    }
+
+    Rectangle{
+        anchors.left: friendslist.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        color: Qt.darker(palette.window)
+        width: 1
+        anchors.margins: -1
+    }
+
+    Item {
+        id: friendstoolbar
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: friendslist.right
+        height: 50
+
+        Rectangle{
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 6
+            color: palette.window
+            width: 48
+            Image{
+                anchors.centerIn: parent
+                source: "qrc:/icons/contact-new.png"
+
+            }
+            MouseArea{
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: {
+                    parent.border.width = 1
+                }
+                onExited: {
+                    parent.border.width = 0
+                }
+                onClicked: {
+                    newfriendrequestwindow.visible = true
+                }
+            }
+        }
+    }
+
+    ChatArea{
+        friend: currentfriend
+        id: chatviews
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.left: friendslist.right
+        anchors.bottom: parent.bottom
     }
 }

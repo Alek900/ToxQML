@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
-        <file>qml/newui.qml</file>
         <file>qml/FriendRequesetWindow.qml</file>
         <file>qml/RequestFriendWindow.qml</file>
         <file>qml/ChatArea.qml</file>

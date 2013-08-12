@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QTimer>
 #include "Messenger.h"
+#include "DHT.h"
 
 class Core : public QObject
 {
@@ -60,6 +61,7 @@ private:
     static void m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length);
     static void m_friendstatuschange(int friendnumber, uint8_t status);
     void m_checkdhtconnection();
+    void addDHTServer(const QString& id, const QString ip, int port);
 
 signals:
 

@@ -13,6 +13,7 @@ Item{
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: textviewport.top
+
         Flickable{
             id: chatscroller
             anchors.fill: parent
@@ -25,7 +26,7 @@ Item{
                 color: palette.text
                 selectionColor: palette.highlightedText
                 
-                text: friend.chatlog
+                text: typeof friend == "undefined" ? "" : friend.chatlog
                 
                 onTextChanged: {
                     if (contentHeight > chatviewport.height)

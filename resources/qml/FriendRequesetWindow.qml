@@ -21,7 +21,7 @@ Window{
             Layout.fillWidth: true
 
             id: friendrequestid
-            text: request == "undefined" ? "" : request.key
+            text: typeof request == "undefined" ? "" : request.key
             readOnly: true
         }
         Label{
@@ -31,7 +31,7 @@ Window{
             Layout.fillHeight: true
             Layout.fillWidth: true
             id: friendrequestmessage
-            text: request == "undefined" ? "" :request.message
+            text: typeof request == "undefined" ? "" :request.message
             readOnly: true
         }
         RowLayout{

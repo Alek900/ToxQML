@@ -126,8 +126,28 @@ void Core::m_checkdhtconnection()
     }
     else if (!DHT_isconnected() && m_connected)
     {
+        m_connected = false;
         emit connectedChanged();
     }
+}
+
+void Core::addDHTServer(const QString &id, const QString ip, int port)
+{
+    IP_Port ipport;
+    QStringList server_ip = ip.split(".");
+
+    //Ugly
+    uint32_t ipint = (server_ip.at(0).toLong() << 24) |
+            (server_ip.at(1).toLong() << 16) |
+            (server_ip.at(2).toLong() << 8) |
+            (server_ip.at(3).toLong());
+
+    ipport.ip.i = ipint;
+    ipport.port = (uint16_t)port;
+
+    cString key = fromQString(id);
+
+    DHT_bootstrap(ipport, key.data);
 }
 
 void Core::m_processevents()
