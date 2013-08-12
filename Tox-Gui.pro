@@ -12,6 +12,18 @@ TEMPLATE = app
 
 CONFIG += c++11
 
+CONFIG += debug_and_release
+
+Release:DESTDIR = build
+Release:OBJECTS_DIR = release/obj
+Release:MOC_DIR = release/moc
+Release:RCC_DIR = release/rcc
+
+Debug:DESTDIR = debug
+Debug:OBJECTS_DIR = debug/obj
+Debug:MOC_DIR = debug/moc
+Debug:RCC_DIR = debug/rcc
+
 INCLUDEPATH += submodule/ProjectTox-Core/core
 
 win32:INCLUDEPATH += ../../libs/sodium/include/
