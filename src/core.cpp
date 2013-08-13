@@ -25,28 +25,28 @@
 
 //#define ENABLEPERSISTENT
 
-static Core *_this = 0;
-
 //TODO: Clean up and move settings out of here and into a independet object
 
 Core::Core(QObject *parent) :
     QObject(parent)
 {
-    Q_ASSERT(_this == 0);
-    _this = this;
 
+    m_messenger = new Messenger();
     eventtimer = new QTimer(this);
 }
 
 QString Core::userId()
 {
-    return QByteArray(reinterpret_cast<char*>(self_public_key),CLIENT_ID_SIZE).toHex();
+    uint8_t* data = new uint8_t[FRIEND_ADDRESS_SIZE];
+    getaddress(m_messenger, data);
+    QByteArray array(reinterpret_cast<char*>(data), FRIEND_ADDRESS_SIZE);
+    return array.toHex();
 }
 
 QString Core::username()
 {
     uint8_t *name = new uint8_t[MAX_NAME_LENGTH];
-    int size = getself_name(name);
+    int size = getself_name(m_messenger, name, MAX_NAME_LENGTH);
 
     QString ret = toQString(name, size);
 
@@ -75,40 +75,46 @@ Core::cString Core::fromQString(const QString &string)
     return ret;
 }
 
-void Core::m_friendrequest(uint8_t *public_key, uint8_t *data, uint16_t length)
+void Core::m_friendrequest(uint8_t *public_key, uint8_t *data, uint16_t length, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     QString message = toQString(data, length);
     QString key = QByteArray(reinterpret_cast<char*>(public_key), CLIENT_ID_SIZE).toHex();
 
     emit _this->onfriendRequested(key, message);
 }
 
-void Core::m_friendmessage(int friendnumber, uint8_t *message, uint16_t length)
+void Core::m_friendmessage(Messenger *m, int friendnumber, uint8_t *message, uint16_t length, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     QString qmessage = toQString(message, length);
     emit _this->onfriendMessaged(friendnumber, qmessage);
 }
 
-void Core::m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t length)
+void Core::m_friendnamechange(Messenger *m, int friendnumber, uint8_t *newname, uint16_t length, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     QString qname = toQString(newname, length);
 
     emit _this->onfriendNameChanged(friendnumber, qname);
 }
 
-void Core::m_frienduserstatuschange(int friendnumber, USERSTATUS kind)
+void Core::m_frienduserstatuschange(Messenger *m, int friendnumber, USERSTATUS kind, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     emit _this->onfriendStatusChanged(friendnumber, kind);
 }
 
-void Core::m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length)
+void Core::m_friendstatusnotechange(Messenger *m, int friendnumber, uint8_t *status, uint16_t length, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     QString message = toQString(status, length);
     emit _this->onfriendStatusTextChanged(friendnumber, message);
 }
 
-void Core::m_friendstatuschange(int friendnumber, uint8_t status)
+void Core::m_friendstatuschange(Messenger *m, int friendnumber, uint8_t status, void* userdata)
 {
+    Core* _this = (Core*)userdata;
     if (status == 4)
     {
         emit _this->onfriendStatusChanged(friendnumber, USERSTATUS_NONE);
@@ -152,13 +158,13 @@ void Core::addDHTServer(const QString &id, const QString ip, int port)
 
 void Core::m_processevents()
 {
-    doMessenger();
+    doMessenger(m_messenger);
     m_checkdhtconnection();
 }
 
 void Core::start()
 {
-    initMessenger();
+    m_messenger = initMessenger();
 #ifdef ENABLEPERSISTENT
     QFile config(QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0].append("/data.cfg"));
     if(config.exists())
@@ -169,12 +175,12 @@ void Core::start()
         config.close();
     }
 #endif
-    m_callback_friendrequest(&Core::m_friendrequest);
-    m_callback_friendmessage(&Core::m_friendmessage);
-    m_callback_namechange(&Core::m_friendnamechange);
-    m_callback_userstatus(&Core::m_frienduserstatuschange);
-    m_callback_connectionstatus(&Core::m_friendstatuschange);
-    m_callback_statusmessage(&Core::m_friendstatusnotechange);
+    m_callback_friendrequest(m_messenger, &Core::m_friendrequest, this);
+    m_callback_friendmessage(m_messenger, &Core::m_friendmessage, this);
+    m_callback_namechange(m_messenger, &Core::m_friendnamechange, (void*)this);
+    m_callback_userstatus(m_messenger, &Core::m_frienduserstatuschange, (void*)this);
+    m_callback_connectionstatus(m_messenger, &Core::m_friendstatuschange, (void*)this);
+    m_callback_statusmessage(m_messenger, &Core::m_friendstatusnotechange, (void*)this);
     connect(eventtimer, &QTimer::timeout, this, &Core::m_processevents);
     eventtimer->start(30);
 
@@ -198,7 +204,7 @@ void Core::stop()
 void Core::setuserUsername(const QString &name)
 {
     cString tmp = fromQString(name);
-    setname(tmp.data, tmp.size);
+    setname(m_messenger, tmp.data, tmp.size);
     delete tmp.data;
 }
 
@@ -206,7 +212,7 @@ void Core::setuserStatusnote(const QString &note)
 {
     cString tmp = fromQString(note);
     qDebug() << QByteArray((char*)tmp.data, tmp.size).toHex();
-    m_set_statusmessage(tmp.data,tmp.size);
+    m_set_statusmessage(m_messenger, tmp.data,tmp.size);
 }
 
 void Core::acceptFriendRequest(const QString &key)
@@ -216,7 +222,7 @@ void Core::acceptFriendRequest(const QString &key)
     uint8_t *ckey = new uint8_t[CLIENT_ID_SIZE];
 
     memcpy(ckey, reinterpret_cast<uint8_t*>(akey.data()), akey.size());
-    int newfriendid = m_addfriend_norequest(ckey);
+    int newfriendid = m_addfriend_norequest(m_messenger, ckey);
 
     if (newfriendid == -1)
     {
@@ -227,16 +233,22 @@ void Core::acceptFriendRequest(const QString &key)
     }
 }
 
-void Core::sendFriendRequest(const QString &key, const QString &message)
+void Core::sendFriendRequest(const QString &address, const QString &message)
 {
-    QByteArray akey = QByteArray::fromHex(key.toLower().toLatin1());
-    uint8_t *ckey = new uint8_t[CLIENT_ID_SIZE];
+    QString key = address.right(4);
+    QByteArray akey = QByteArray::fromHex(address.toLower().toLatin1());
+    uint8_t *ckey = new uint8_t[FRIEND_ADDRESS_SIZE];
 
     memcpy(ckey, reinterpret_cast<uint8_t*>(akey.data()), akey.size());
     cString tmp = fromQString(message);
 
-    int newfriendid = m_addfriend(ckey, tmp.data, tmp.size);
-    emit onfriendAdded(newfriendid, key);
+    int newfriendid = m_addfriend(m_messenger, ckey, tmp.data, tmp.size);
+    if (newfriendid >= 0)
+    {
+        emit onfriendAdded(newfriendid, key);
+    } else {
+
+    }
 
     delete tmp.data;
 }
@@ -244,21 +256,21 @@ void Core::sendFriendRequest(const QString &key, const QString &message)
 void Core::sendFriendMessge(int friendnumber, const QString &message)
 {
     cString ret = fromQString(message);
-    m_sendmessage(friendnumber, ret.data, ret.size);
+    m_sendmessage(m_messenger, friendnumber, ret.data, ret.size);
     delete ret.data;
 }
 
 void Core::deleteFriend(int friendnumber)
 {
-    m_delfriend(friendnumber);
+    m_delfriend(m_messenger, friendnumber);
 }
 
 QByteArray Core::saveSettings()
 {
-    uint8_t *data = new uint8_t[Messenger_size()];
-    Messenger_save(data);
+    uint8_t *data = new uint8_t[Messenger_size(m_messenger)];
+    Messenger_save(m_messenger, data);
 
-    return QByteArray(reinterpret_cast<char*>(data),Messenger_size());
+    return QByteArray(reinterpret_cast<char*>(data),Messenger_size(m_messenger));
 }
 
 void Core::loadSettings(QByteArray settings)
@@ -266,13 +278,13 @@ void Core::loadSettings(QByteArray settings)
     uint8_t *data = new uint8_t[settings.size() + 1];
 
     memcpy(data, reinterpret_cast<uint8_t*>(settings.data()), settings.size());
-    Messenger_load(data, settings.size());
+    Messenger_load(m_messenger, data, settings.size());
 
     uint8_t *idptr = new uint8_t[CLIENT_ID_SIZE];
     int id = 0;
     QString key;
 
-    while (getclient_id(id, idptr) != -1)
+    while (getclient_id(m_messenger, id, idptr) != -1)
     {
         key = QByteArray(reinterpret_cast<char*>(idptr), CLIENT_ID_SIZE).toHex();
         emit onfriendAdded(id, key);

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick
+QT       += core gui widgets quick
 
 TARGET = Tox-Gui
 
@@ -43,7 +43,8 @@ SOURCES += main.cpp \
     src/core.cpp \
     src/friend.cpp \
     src/coremodel.cpp \
-    src/settings.cpp
+    src/settings.cpp \
+    submodule/ProjectTox-Core/core/timer.c
 
 SOURCES += \
     submodule/ProjectTox-Core/core/util.c \
@@ -72,7 +73,8 @@ HEADERS  += \
     src/friend.h \
     src/coremodel.h \
     src/statuswrapper.h \
-    src/settings.h
+    src/settings.h \
+    submodule/ProjectTox-Core/core/timer.h
 
 OTHER_FILES += \
     resources/qml/RequestFriendWindow.qml \

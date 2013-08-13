@@ -19,47 +19,47 @@
 
 #include "friend.h"
 
-Friend::Friend(int id, QObject *parent) : QObject(parent)
+FriendItem::FriendItem(int id, QObject *parent) : QObject(parent)
 {
     m_id = id;
 }
 
-void Friend::setusername(const QString &username)
+void FriendItem::setusername(const QString &username)
 {
     m_username = username;
     emit usernameChanged();
 }
 
-void Friend::setuserId(const QString &public_key)
+void FriendItem::setuserId(const QString &public_key)
 {
     m_userid = public_key;
     emit userIdChanged();
 }
 
-void Friend::setstatus(StatusWrapper::Status status)
+void FriendItem::setstatus(StatusWrapper::Status status)
 {
     m_status = status;
     emit statusChanged();
 }
 
-void Friend::setstatusNote(const QString &note)
+void FriendItem::setstatusNote(const QString &note)
 {
     m_statusnote = note;
     emit statusNoteChanged();
 }
 
-void Friend::setchatlog(const QString& data)
+void FriendItem::setchatlog(const QString& data)
 {
     m_chatlog = data;
     emit chatlogChanged();
 }
 
-void Friend::m_recivedMessage(const QString &message)
+void FriendItem::m_recivedMessage(const QString &message)
 {
     emit recivedMessage(message);
 }
 
-void Friend::sendMessage(const QString &message)
+void FriendItem::sendMessage(const QString &message)
 {
     emit m_sendmessage(m_id, message);
     m_chatlog.append("You: ");
@@ -68,7 +68,7 @@ void Friend::sendMessage(const QString &message)
     emit chatlogChanged();
 }
 
-void Friend::messageRecived(const QString &message)
+void FriendItem::messageRecived(const QString &message)
 {
     m_chatlog.append(username() + ": ");
     m_chatlog.append(message);
@@ -76,7 +76,7 @@ void Friend::messageRecived(const QString &message)
     emit chatlogChanged();
 }
 
-void Friend::deleteMe()
+void FriendItem::deleteMe()
 {
     emit deleteFriend(m_id);
 }

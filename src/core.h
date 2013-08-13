@@ -51,15 +51,17 @@ private:
     bool m_connected;
     QString m_id;
 
+    Messenger *m_messenger;
+
     static QString toQString(uint8_t *data, uint16_t length = -1);
     static cString fromQString(const QString& string);
 
-    static void m_friendrequest(uint8_t *public_key, uint8_t  *data, uint16_t length);
-    static void m_friendmessage(int friendnumber, uint8_t *message, uint16_t length);
-    static void m_friendnamechange(int friendnumber, uint8_t *newname, uint16_t length);
-    static void m_frienduserstatuschange(int friendnumber,USERSTATUS kind);
-    static void m_friendstatusnotechange(int friendnumber, uint8_t *status, uint16_t length);
-    static void m_friendstatuschange(int friendnumber, uint8_t status);
+    static void m_friendrequest(uint8_t *public_key, uint8_t  *data, uint16_t length, void *userdata);
+    static void m_friendmessage(Messenger *m, int friendnumber, uint8_t *message, uint16_t length, void *userdata);
+    static void m_friendnamechange(Messenger *m, int friendnumber, uint8_t *newname, uint16_t length, void *userdata);
+    static void m_frienduserstatuschange(Messenger *m, int friendnumber,USERSTATUS kind, void *userdata);
+    static void m_friendstatusnotechange(Messenger *m, int friendnumber, uint8_t *status, uint16_t length, void *userdata);
+    static void m_friendstatuschange(Messenger *m, int friendnumber, uint8_t status, void* userdata);
     void m_checkdhtconnection();
     void addDHTServer(const QString& id, const QString ip, int port);
 
