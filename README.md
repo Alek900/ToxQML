@@ -10,6 +10,6 @@ A tox client written in Qt/QML
 * Some sort of login screen maybe
 
 ###Screenshot:
-![](http://i.imgur.com/Y048Jw8.png?1 "")
+![](http://i.imgur.com/Y048Jw8.png "")
 
 Still a work in progress but looks much better than the test version
