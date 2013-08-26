@@ -8,5 +8,8 @@
         <file>icons/dialog-question.png</file>
         <file>icons/user-invisible.png</file>
         <file>icons/contact-new.png</file>
+        <file>icons/mail-unread.png</file>
+        <file>icons/network-idle.png</file>
+        <file>icons/network-offline.png</file>
     </qresource>
 </RCC>

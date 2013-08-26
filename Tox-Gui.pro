@@ -24,10 +24,10 @@ Debug:OBJECTS_DIR = debug/obj
 Debug:MOC_DIR = debug/moc
 Debug:RCC_DIR = debug/rcc
 
-INCLUDEPATH += submodule/ProjectTox-Core/core
 
 win32:INCLUDEPATH += ../../libs/sodium/include/
 macx:INCLUDEPATH += /usr/local/include
+
 
 win32 {
     LIBS += -lWS2_32 ../../libs/sodium/lib/libsodium.a
@@ -39,42 +39,21 @@ win32 {
     }
 }
 
+LIBS += -ltoxcore
+
 SOURCES += main.cpp \
     src/core.cpp \
     src/friend.cpp \
     src/coremodel.cpp \
     src/settings.cpp \
-    submodule/ProjectTox-Core/core/timer.c
-
-SOURCES += \
-    submodule/ProjectTox-Core/core/util.c \
-    submodule/ProjectTox-Core/core/ping.c \
-    submodule/ProjectTox-Core/core/network.c \
-    submodule/ProjectTox-Core/core/net_crypto.c \
-    submodule/ProjectTox-Core/core/Messenger.c \
-    submodule/ProjectTox-Core/core/Lossless_UDP.c \
-    submodule/ProjectTox-Core/core/LAN_discovery.c \
-    submodule/ProjectTox-Core/core/friend_requests.c \
-    submodule/ProjectTox-Core/core/DHT.c
 
 
 HEADERS  += \
-    submodule/ProjectTox-Core/core/util.h \
-    submodule/ProjectTox-Core/core/ping.h \
-    submodule/ProjectTox-Core/core/packets.h \
-    submodule/ProjectTox-Core/core/network.h \
-    submodule/ProjectTox-Core/core/net_crypto.h \
-    submodule/ProjectTox-Core/core/Messenger.h \
-    submodule/ProjectTox-Core/core/Lossless_UDP.h \
-    submodule/ProjectTox-Core/core/LAN_discovery.h \
-    submodule/ProjectTox-Core/core/friend_requests.h \
-    submodule/ProjectTox-Core/core/DHT.h \
     src/core.h \
     src/friend.h \
     src/coremodel.h \
     src/statuswrapper.h \
-    src/settings.h \
-    submodule/ProjectTox-Core/core/timer.h
+    src/settings.h
 
 OTHER_FILES += \
     resources/qml/RequestFriendWindow.qml \

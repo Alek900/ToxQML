@@ -83,7 +83,7 @@ public slots:
     void onfriendRequest(const QString& key, const QString& message);
     void onfriendMessage(int friendnumber, const QString& message);
     void onfriendNameChanged(int friendnumber, const QString& name);
-    void onfriendStatusChanged(int friendnumber, USERSTATUS status);
+    void onfriendStatusChanged(int friendnumber, TOX_USERSTATUS status);
     void onfriendStatusNoteChanged(int friendnumber, const QString& name);
     void acceptFriendRequest(Request *newfriend);
 

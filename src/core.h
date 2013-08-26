@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include "tox.h"
 #include "Messenger.h"
 #include "DHT.h"
 
@@ -51,17 +52,17 @@ private:
     bool m_connected;
     QString m_id;
 
-    Messenger *m_messenger;
+    Tox *m_tox;
 
     static QString toQString(uint8_t *data, uint16_t length = -1);
     static cString fromQString(const QString& string);
 
     static void m_friendrequest(uint8_t *public_key, uint8_t  *data, uint16_t length, void *userdata);
-    static void m_friendmessage(Messenger *m, int friendnumber, uint8_t *message, uint16_t length, void *userdata);
-    static void m_friendnamechange(Messenger *m, int friendnumber, uint8_t *newname, uint16_t length, void *userdata);
-    static void m_frienduserstatuschange(Messenger *m, int friendnumber,USERSTATUS kind, void *userdata);
-    static void m_friendstatusnotechange(Messenger *m, int friendnumber, uint8_t *status, uint16_t length, void *userdata);
-    static void m_friendstatuschange(Messenger *m, int friendnumber, uint8_t status, void* userdata);
+    static void m_friendmessage(Tox *m, int friendnumber, uint8_t *message, uint16_t length, void *userdata);
+    static void m_friendnamechange(Tox *m, int friendnumber, uint8_t *newname, uint16_t length, void *userdata);
+    static void m_frienduserstatuschange(Tox *m, int friendnumber,TOX_USERSTATUS kind, void *userdata);
+    static void m_friendstatusnotechange(Tox *m, int friendnumber, uint8_t *status, uint16_t length, void *userdata);
+    static void m_friendstatuschange(Tox *m, int friendnumber, uint8_t status, void* userdata);
     void m_checkdhtconnection();
     void addDHTServer(const QString& id, const QString ip, int port);
 
@@ -75,7 +76,7 @@ signals:
     void onfriendRequested(const QString& public_key, const QString& message);
     void onfriendMessaged(int friendnumber, const QString& message);
     void onfriendNameChanged(int friendnumber, const QString& name);
-    void onfriendStatusChanged(int friendnumber, USERSTATUS status);
+    void onfriendStatusChanged(int friendnumber, TOX_USERSTATUS status);
     void onfriendStatusTextChanged(int friendnumber, const QString& note);
 
 private slots:

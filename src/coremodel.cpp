@@ -93,7 +93,7 @@ void CoreModel::onfriendNameChanged(int friendnumber, const QString& name)
     m_friendmap[friendnumber]->setusername(name);
 }
 
-void CoreModel::onfriendStatusChanged(int friendnumber, USERSTATUS status)
+void CoreModel::onfriendStatusChanged(int friendnumber, TOX_USERSTATUS status)
 {
     m_friendmap[friendnumber]->setstatus((StatusWrapper::Status) status);
 }
