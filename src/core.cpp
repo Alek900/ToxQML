@@ -132,7 +132,7 @@ void Core::m_checkdhtconnection()
 
 void Core::addDHTServer(const QString &id, const QString ip, int port)
 {
-    IP_Port ipport;
+    /*IP_Port ipport;
     QStringList server_ip = ip.split(".");
 
     //Ugly
@@ -141,12 +141,12 @@ void Core::addDHTServer(const QString &id, const QString ip, int port)
             (server_ip.at(2).toLong() << 8) |
             (server_ip.at(3).toLong());
 
-    ipport.ip.i = ipint;
+    ipport.ip.ip_v = ipint;
     ipport.port = (uint16_t)port;
 
     cString key = fromQString(id);
 
-    //DHT_bootstrap(ipport, key.data);
+    //DHT_bootstrap(ipport, key.data);*/
 }
 
 void Core::m_processevents()
@@ -157,7 +157,7 @@ void Core::m_processevents()
 
 void Core::start()
 {
-    m_tox = tox_new();
+    m_tox = tox_new(0);
 #ifdef ENABLEPERSISTENT
     QFile config(QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0].append("/data.cfg"));
     if(config.exists())

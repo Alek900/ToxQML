@@ -24,6 +24,8 @@ Debug:OBJECTS_DIR = debug/obj
 Debug:MOC_DIR = debug/moc
 Debug:RCC_DIR = debug/rcc
 
+INCLUDEPATH += ./submodule/ProjectTox-Core/toxcore/
+
 
 win32:INCLUDEPATH += ../../libs/sodium/include/
 macx:INCLUDEPATH += /usr/local/include
