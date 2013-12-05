@@ -45,17 +45,19 @@ LIBS += -ltoxcore
 
 SOURCES += main.cpp \
     src/core.cpp \
-    src/friend.cpp \
     src/coremodel.cpp \
     src/settings.cpp \
+    src/user.cpp \
+    src/group.cpp
 
 
 HEADERS  += \
     src/core.h \
-    src/friend.h \
     src/coremodel.h \
     src/statuswrapper.h \
-    src/settings.h
+    src/settings.h \
+    src/user.h \
+    src/group.h
 
 OTHER_FILES += \
     resources/qml/RequestFriendWindow.qml \
