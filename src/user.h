@@ -22,7 +22,7 @@
 #include <QObject>
 #include "statuswrapper.h"
 
-class FriendItem : public QObject
+class UserItem : public QObject
 {
 
     Q_OBJECT
@@ -33,7 +33,7 @@ class FriendItem : public QObject
     Q_PROPERTY(QString chatlog READ chatlog WRITE setchatlog NOTIFY chatlogChanged)
 
 public:
-    FriendItem(int id, QObject *parent = 0);
+    UserItem(int id, QObject *parent = 0);
 
     QString username(){return m_username;}
     StatusWrapper::Status status(){return m_status;}
@@ -74,5 +74,5 @@ public slots:
     void deleteMe();
 };
 
-Q_DECLARE_METATYPE(FriendItem*)
+Q_DECLARE_METATYPE(UserItem*)
 #endif // FRIEND_H

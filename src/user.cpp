@@ -17,49 +17,49 @@
     along with this program.  If not, see {http://www.gnu.org/licenses/}.
 */
 
-#include "friend.h"
+#include "user.h"
 
-FriendItem::FriendItem(int id, QObject *parent) : QObject(parent)
+UserItem::UserItem(int id, QObject *parent) : QObject(parent)
 {
     m_id = id;
 }
 
-void FriendItem::setusername(const QString &username)
+void UserItem::setusername(const QString &username)
 {
     m_username = username;
     emit usernameChanged();
 }
 
-void FriendItem::setuserId(const QString &public_key)
+void UserItem::setuserId(const QString &public_key)
 {
     m_userid = public_key;
     emit userIdChanged();
 }
 
-void FriendItem::setstatus(StatusWrapper::Status status)
+void UserItem::setstatus(StatusWrapper::Status status)
 {
     m_status = status;
     emit statusChanged();
 }
 
-void FriendItem::setstatusNote(const QString &note)
+void UserItem::setstatusNote(const QString &note)
 {
     m_statusnote = note;
     emit statusNoteChanged();
 }
 
-void FriendItem::setchatlog(const QString& data)
+void UserItem::setchatlog(const QString& data)
 {
     m_chatlog = data;
     emit chatlogChanged();
 }
 
-void FriendItem::m_recivedMessage(const QString &message)
+void UserItem::m_recivedMessage(const QString &message)
 {
     emit recivedMessage(message);
 }
 
-void FriendItem::sendMessage(const QString &message)
+void UserItem::sendMessage(const QString &message)
 {
     emit m_sendmessage(m_id, message);
     m_chatlog.append("You: ");
@@ -68,7 +68,7 @@ void FriendItem::sendMessage(const QString &message)
     emit chatlogChanged();
 }
 
-void FriendItem::messageRecived(const QString &message)
+void UserItem::messageRecived(const QString &message)
 {
     m_chatlog.append(username() + ": ");
     m_chatlog.append(message);
@@ -76,7 +76,7 @@ void FriendItem::messageRecived(const QString &message)
     emit chatlogChanged();
 }
 
-void FriendItem::deleteMe()
+void UserItem::deleteMe()
 {
     emit deleteFriend(m_id);
 }
