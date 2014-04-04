@@ -43,7 +43,7 @@ QString Core::userId()
 QString Core::username()
 {
     uint8_t *name = new uint8_t[TOX_MAX_NAME_LENGTH];
-    int size = tox_get_self_name(m_tox, name, TOX_MAX_NAME_LENGTH);
+    int size = tox_get_self_name(m_tox, name);
 
     QString ret = toQString(name, size);
 

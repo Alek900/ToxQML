@@ -26,6 +26,9 @@ Debug:RCC_DIR = debug/rcc
 
 INCLUDEPATH += ./submodule/ProjectTox-Core/toxcore/
 
+# Build fails without fpermissive because of code included in tox core.
+# Ideally we wouldn't need this flag
+QMAKE_CXXFLAGS += -fpermissive
 
 win32:INCLUDEPATH += ../../libs/sodium/include/
 macx:INCLUDEPATH += /usr/local/include
